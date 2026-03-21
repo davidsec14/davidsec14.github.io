@@ -1,0 +1,114 @@
+baseURL = "https://davidsec14.github.io/"
+languageCode = "en-us"
+title = "HTB Writeups"
+theme = "PaperMod"
+[pagination]
+  pagerSize = 10
+enableRobotsTXT = true
+buildDrafts = false
+buildFuture = false
+ 
+[minify]
+  disableXML = true
+  minifyOutput = true
+ 
+[params]
+  env = "production"
+  author = "your handle"
+  description = "HTB writeups, pentest TTPs, and security research notes."
+  keywords = ["hackthebox", "pentesting", "ctf", "active directory", "security"]
+ 
+  # Theme
+  defaultTheme = "dark"
+  disableThemeToggle = false
+  ShowShareButtons = false
+  ShowReadingTime = true
+  ShowBreadCrumbs = true
+  ShowPostNavLinks = true
+  ShowCodeCopyButtons = true
+  ShowWordCount = false
+  ShowRssButtonInSectionTermList = false
+  UseHugoToc = true
+  disableSpecial1stPost = false
+  disableScrollToTop = false
+  comments = false
+  hidemeta = false
+  hideSummary = false
+  showtoc = true
+  tocopen = false
+ 
+  # Home page info
+  [params.homeInfoParams]
+    Title = "whoami"
+    Content = """
+Penetration tester working through HTB's Penetration Tester path and professional engagements.
+This blog documents machine writeups (retired only), TTP notes, and tooling.
+All content is for educational purposes and authorized lab environments only.
+"""
+ 
+  # Social icons on home page
+  [[params.socialIcons]]
+    name = "github"
+    url = "https://github.com/yourusername"
+ 
+  [[params.socialIcons]]
+    name = "hackthebox"
+    url = "https://app.hackthebox.com/profile/yourid"
+ 
+  # Search
+  [params.fuseOpts]
+    isCaseSensitive = false
+    shouldSort = true
+    location = 0
+    distance = 1000
+    threshold = 0.4
+    minMatchCharLength = 0
+    keys = ["title", "permalink", "summary", "content"]
+ 
+# Enable search page
+[outputs]
+  home = ["HTML", "RSS", "JSON"]
+ 
+# Taxonomy (tags + categories)
+[taxonomies]
+  tag = "tags"
+  category = "categories"
+  series = "series"
+ 
+# Syntax highlighting — dark, hacker-friendly
+[markup]
+  [markup.highlight]
+    noClasses = false
+    anchorLineNos = true
+    codeFences = true
+    guessSyntax = true
+    lineNos = true
+    style = "monokai"
+ 
+  [markup.goldmark.renderer]
+    unsafe = true  # allows raw HTML in markdown (useful for HTB badges etc.)
+ 
+# Menu
+[[menu.main]]
+  identifier = "search"
+  name = "search"
+  url = "/search/"
+  weight = 10
+ 
+[[menu.main]]
+  identifier = "tags"
+  name = "tags"
+  url = "/tags/"
+  weight = 20
+ 
+[[menu.main]]
+  identifier = "writeups"
+  name = "writeups"
+  url = "/categories/writeup/"
+  weight = 30
+ 
+[[menu.main]]
+  identifier = "ttps"
+  name = "ttps"
+  url = "/categories/ttp/"
+  weight = 40
