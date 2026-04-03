@@ -28,7 +28,16 @@ TocOpen: false
 
 CCTV is a medium Linux machine from Hack The Box. It starts with a company website running ZoneMinder 1.37.63, vulnerable to SQL injection (CVE-2024-51482). After dumping and cracking the database hashes, I get SSH access as mark. From mark, I use tcpdump (which has the `cap_net_raw` capability) to sniff plaintext credentials for sa\_mark. That user has access to an internal motionEye instance vulnerable to authenticated RCE (CVE-2025-60787), leading to a root shell.
 
-**Kill chain**: ZoneMinder SQLi (CVE-2024-51482) → hash dump → crack mark's bcrypt → SSH as mark → tcpdump cap\_net\_raw sniff sa\_mark creds → SSH as sa\_mark → port forward motionEye 8765 → authenticated RCE (CVE-2025-60787) → root
+### Kill Chain
+
+| Step | Action | Result |
+|------|--------|--------|
+| 1 | Default creds on ZoneMinder (`admin:admin`) | Authenticated access |
+| 2 | SQLi via CVE-2024-51482, dump Users table | Bcrypt hashes for 3 accounts |
+| 3 | Crack mark's hash with hashcat | `mark:opensesame` |
+| 4 | SSH as mark, tcpdump with `cap_net_raw` | Sniff sa\_mark's plaintext creds |
+| 5 | SSH as sa\_mark, port forward 8765 | Access internal motionEye instance |
+| 6 | Exploit CVE-2025-60787 via Metasploit | Root shell |
 
 ## Recon
 
