@@ -6,7 +6,7 @@ categories: ["writeup"]
 tags:
   - hackthebox
   - linux
-  - medium
+  - easy
   - zoneminder
   - sql-injection
   - password-cracking
@@ -14,8 +14,8 @@ tags:
   - motioneye
   - CVE-2024-51482
   - CVE-2025-60787
-description: "CCTV is a medium Linux box featuring ZoneMinder SQL injection, credential reuse through packet capture, and motionEye authenticated RCE."
-summary: "CCTV is a medium Linux box featuring ZoneMinder SQL injection, credential reuse through packet capture, and motionEye authenticated RCE."
+description: "CCTV is an easy Linux box featuring ZoneMinder SQL injection, credential reuse through packet capture, and motionEye authenticated RCE."
+summary: "CCTV is an easy Linux box featuring ZoneMinder SQL injection, credential reuse through packet capture, and motionEye authenticated RCE."
 cover:
   image: "/images/htb-cctv/info-card.png"
   alt: "HTB CCTV"
@@ -26,7 +26,13 @@ TocOpen: false
 
 ## Box Info
 
-CCTV is a medium Linux machine from Hack The Box. It starts with a company website running ZoneMinder 1.37.63, vulnerable to SQL injection (CVE-2024-51482). After dumping and cracking the database hashes, I get SSH access as mark. From mark, I use tcpdump (which has the `cap_net_raw` capability) to sniff plaintext credentials for sa\_mark. That user has access to an internal motionEye instance vulnerable to authenticated RCE (CVE-2025-60787), leading to a root shell.
+| | |
+|---|---|
+| **OS** | Linux |
+| **Difficulty** | Easy |
+| **Release** | 2026 |
+
+CCTV is an easy Linux machine from Hack The Box. It starts with a company website running ZoneMinder 1.37.63, vulnerable to SQL injection (CVE-2024-51482). After dumping and cracking the database hashes, I get SSH access as mark. From mark, I use tcpdump (which has the `cap_net_raw` capability) to sniff plaintext credentials for sa\_mark. That user has access to an internal motionEye instance vulnerable to authenticated RCE (CVE-2025-60787), leading to a root shell.
 
 ### Kill Chain
 
