@@ -107,8 +107,3 @@ All content is for educational purposes and authorized lab environments only.
   url = "/categories/writeup/"
   weight = 30
  
-[[menu.main]]
-  identifier = "ttps"
-  name = "ttps"
-  url = "/categories/ttp/"
-  weight = 40
