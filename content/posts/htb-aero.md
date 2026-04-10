@@ -13,7 +13,7 @@ tags:
   - windows-themes
   - clfs-driver
   - iis
-description: "Aero is a medium Windows box exploiting the ThemeBeed vulnerability (CVE-2023-38146) for initial access and the CLFS driver EoP (CVE-2023-28252) for SYSTEM."
+description: "Aero is a medium Windows box exploiting the ThemeBleed vulnerability (CVE-2023-38146) for initial access and the CLFS driver EoP (CVE-2023-28252) for SYSTEM."
 summary: "Aero is a medium Windows box exploiting the ThemeBleed vulnerability (CVE-2023-38146) for initial access and the CLFS driver EoP (CVE-2023-28252) for SYSTEM."
 cover:
   image: "/images/htb-aero/info-card.png"
