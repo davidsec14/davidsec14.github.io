@@ -1,0 +1,17 @@
+<script>
+document.querySelectorAll('.post-content img').forEach(img => {
+  img.addEventListener('click', () => {
+    const overlay = document.createElement('div');
+    overlay.className = 'img-overlay';
+    const fullImg = document.createElement('img');
+    fullImg.src = img.src;
+    fullImg.alt = img.alt;
+    overlay.appendChild(fullImg);
+    overlay.addEventListener('click', () => overlay.remove());
+    document.addEventListener('keydown', function esc(e) {
+      if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', esc); }
+    });
+    document.body.appendChild(overlay);
+  });
+});
+</script>
