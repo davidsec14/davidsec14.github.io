@@ -133,7 +133,7 @@ PS> cat user.txt
 
 ![user.txt flag on sam.emerson's desktop](/images/htb-aero/user-flag.png)
 
-## Shell as root
+## Shell as SYSTEM
 
 ### Enumeration
 
@@ -212,7 +212,7 @@ We're SYSTEM.
 ### root.txt
 
 ```console
-PS# cat root.txt
+PS> cat root.txt
 7a896840************************
 ```
 
