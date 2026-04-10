@@ -31,21 +31,6 @@ jobs:
       - name: Build
         run: hugo --minify
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Encrypt HTB writeups
-        env:
-          STATICRYPT_PASS: ${{ secrets.STATICRYPT_PASS }}
-        run: |
-          npx staticrypt@3 public/posts/htb-*/index.html \
-            -p "$STATICRYPT_PASS" \
-            --short \
-            --template-title "Protected Post" \
-            --template-instructions "This is an active HTB machine. Enter the password to view."
-
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
