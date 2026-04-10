@@ -213,10 +213,3 @@ We're SYSTEM.
 ```
 
 ![root.txt flag on administrator's desktop](/images/htb-aero/root-flag.png)
-
-## Credentials
-
-| User | Password / Hash | Source |
-|------|----------------|--------|
-| sam.emerson | N/A (shell via ThemeBleed RCE) | CVE-2023-38146 |
-| SYSTEM | N/A (kernel exploit) | CVE-2023-28252 |
