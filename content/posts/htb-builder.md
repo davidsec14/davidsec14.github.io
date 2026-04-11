@@ -173,19 +173,23 @@ Credentials: `jennifer:princess`. I logged into the Jenkins UI.
 
 Logged in as jennifer, I went to Manage Jenkins to see what was stored.
 
-![Manage Jenkins with Credentials highlighted](/images/htb-builder/jenkins-manage-credentials.png)
+![Jenkins dashboard as jennifer, navigating to Manage Jenkins](/images/htb-builder/jenkins-manage-credentials.png)
 
-The Credentials page shows a single SSH key credential, ID=1, scoped globally to "root".
+The Manage Jenkins page has a Credentials section. I clicked into it.
 
-![Jenkins credentials showing SSH key for root](/images/htb-builder/jenkins-credentials-ssh-key.png)
+![Manage Jenkins page with Credentials section highlighted](/images/htb-builder/jenkins-credentials-ssh-key.png)
 
-I can't view the raw key through the UI, but I can use it in a pipeline job. Before building one, I checked which plugins were available.
+There's a single SSH key credential, ID=1, scoped globally to "root".
 
-![Manage Jenkins with Plugins highlighted](/images/htb-builder/jenkins-manage-plugins.png)
+![Credentials page showing SSH key ID=1 for root](/images/htb-builder/jenkins-manage-plugins.png)
 
-The SSH Agent plugin is installed. That's the one that exposes the `sshagent` pipeline step, which loads a stored SSH key and uses it for an SSH connection.
+I can't read the raw key through the UI, but I can reference it in a pipeline job. Before building one I checked which plugins were available.
 
-![SSH Agent plugin shown as installed](/images/htb-builder/jenkins-ssh-agent-plugin.png)
+![Manage Jenkins page with Plugins section highlighted](/images/htb-builder/jenkins-ssh-agent-plugin.png)
+
+The SSH Agent plugin is installed. That's the one that exposes the `sshagent` pipeline step, which loads a stored SSH key and makes it available for SSH connections inside a build.
+
+![Plugins page showing SSH Agent plugin installed](/images/htb-builder/jenkins-new-item.png)
 
 ### Pipeline Exfiltration
 
@@ -193,15 +197,17 @@ The plan: create a Pipeline job that uses `sshagent(credentials: ['1'])` to load
 
 I created a new item from the dashboard.
 
-![New Item button on Jenkins dashboard](/images/htb-builder/jenkins-new-item.png)
+![Jenkins dashboard with New Item button highlighted](/images/htb-builder/jenkins-new-pipeline.png)
 
 Named the job `ssh_key` and selected Pipeline as the type.
 
-![Creating new pipeline job named ssh_key](/images/htb-builder/jenkins-new-pipeline.png)
+![New Item dialog: ssh_key name entered, Pipeline type selected](/images/htb-builder/jenkins-pipeline-created.png)
 
-![Pipeline job created, Build Now button visible](/images/htb-builder/jenkins-pipeline-created.png)
+After creation, the pipeline page shows no builds yet.
 
-Then I configured the Pipeline section with this script:
+![Empty ssh_key pipeline page, Build Now button visible](/images/htb-builder/jenkins-pipeline-config.png)
+
+I clicked Configure and added the pipeline script, then saved.
 
 ```text
 pipeline {
@@ -221,19 +227,17 @@ pipeline {
 }
 ```
 
-![Pipeline configuration with sshagent script, Save button highlighted](/images/htb-builder/jenkins-pipeline-config.png)
+![Pipeline configuration page with sshagent script and Save button highlighted](/images/htb-builder/jenkins-build-success.png)
 
-Saved and hit Build Now. The stage went green almost immediately.
+Hit Build Now. The SSH stage went green in two seconds.
 
-![Pipeline build #1 succeeded](/images/htb-builder/jenkins-build-success.png)
+![Pipeline overview showing build #1 succeeded, SSH stage 2s](/images/htb-builder/jenkins-build-console.png)
 
-I clicked into the build and opened Console Output.
+I clicked into the build to get the console output.
 
-![Build #1 details, Console Output link highlighted](/images/htb-builder/jenkins-build-console.png)
+![Build #1 details page, Console Output link highlighted, started by jennifer](/images/htb-builder/jenkins-build-details.png)
 
-![Build started by jennifer](/images/htb-builder/jenkins-build-details.png)
-
-The console log shows the SSH private key for root printed in full.
+The console log shows the root SSH private key printed in full.
 
 ![Console output containing root's SSH private key](/images/htb-builder/jenkins-console-root-key.png)
 
