@@ -96,9 +96,7 @@ Browsing to the IP redirects to `board.htb`, so I added that to `/etc/hosts`. Th
 Not much to interact with on the main site, so I fuzzed for virtual hosts. The `-fs 15949` flag filters out responses matching the size of the default page:
 
 ```console
-$ ffuf -u http://board.htb/ -H "Host: FUZZ.board.htb" \
-  -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-20000.txt \
-  -fs 15949
+$ ffuf -u http://board.htb/ -H "Host: FUZZ.board.htb" -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-20000.txt -fs 15949
 
 crm   [Status: 200, Size: 6360, Words: 397, Lines: 150, Duration: 108ms]
 ```
