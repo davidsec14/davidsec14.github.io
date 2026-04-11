@@ -23,13 +23,13 @@ showToc: true
 TocOpen: false
 ---
 
-| Field      | Value                  |
-|------------|------------------------|
-| OS         | Linux (Ubuntu 22.04.3) |
-| Difficulty | Easy                   |
-| Release    | November 2023          |
+| Field      | Info    |
+|------------|---------|
+| OS         | Linux   |
+| Difficulty | Easy    |
+| Release    | 2023    |
 
-## Kill Chain
+### Kill Chain
 
 | Step | Action | Result |
 |------|--------|--------|
@@ -168,7 +168,7 @@ $ stty raw -echo; fg
 $ export TERM=xterm
 ```
 
-Now grab the user flag:
+### user.txt
 
 **Target (activemq):**
 ```console
@@ -245,6 +245,8 @@ root@broker:~#
 ```
 
 ![root shell confirmed](/images/htb-broker/root-shell-whoami.png)
+
+### root.txt
 
 **Target (root):**
 ```console
