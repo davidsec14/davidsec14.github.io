@@ -121,6 +121,7 @@ Dolibarr 17.0.0 is vulnerable to CVE-2023-30253, a PHP code injection flaw that 
 
 I used the PoC from [Rubikcuv5](https://github.com/Rubikcuv5/cve-2023-30253):
 
+**Kali:**
 ```console
 $ git clone https://github.com/Rubikcuv5/cve-2023-30253.git
 $ cd cve-2023-30253
