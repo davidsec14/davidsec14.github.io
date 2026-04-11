@@ -99,7 +99,7 @@ The multiple protocol ports (1883 MQTT, 5672 AMQP, 61613 STOMP, 61614 HTTP trans
 
 CVE-2023-46604 is a CVSS 10.0 unauthenticated RCE in ActiveMQ's OpenWire protocol handler. The server deserializes incoming data without validating that the target class is a legitimate `Throwable`. An attacker sends a crafted packet that triggers instantiation of Spring's `ClassPathXmlApplicationContext` with an attacker-controlled URL, which fetches and processes a Spring bean XML file that runs arbitrary OS commands. No authentication required, just network access to port 61616.
 
-I used the Go PoC from SaumyajeetDas, which fetches a malicious XML and executes whatever's in it. To avoid embedding a bash reverse shell in XML (the `>&` escaping is fiddly), I generated an msfvenom ELF and had the XML curl it down and run it.
+I used the Go PoC from [SaumyajeetDas](https://github.com/SaumyajeetDas/CVE-2023-46604-RCE-Reverse-Shell-Apache-ActiveMQ), which fetches a malicious XML and executes whatever's in it. To avoid embedding a bash reverse shell in XML (the `>&` escaping is fiddly), I generated an msfvenom ELF and had the XML curl it down and run it.
 
 **Kali:**
 ```console
@@ -254,10 +254,3 @@ root@broker:~#
 
 ![root.txt flag](/images/htb-broker/root-flag.png)
 
----
-
-## Wrap-up
-
-Broker is a tight, realistic box. The foothold is entirely about recognizing a version number: ActiveMQ 5.15.15 on port 61616 means CVE-2023-46604, and the public PoC is straightforward to use. The privesc is a good reminder that `NOPASSWD` sudo on any binary that can write files as root is game over. Nginx with `dav_methods PUT` and `user root` is effectively `sudo tee`. The GTFOBins entry for nginx covers this exact scenario.
-
-One thing worth noting for real engagements: the malicious nginx instance leaves worker processes running as root, a PID file at `/tmp/nginx.pid`, and the injected key in `/root/.ssh/authorized_keys`. Clean all of that up. `kill $(cat /tmp/nginx.pid)` handles the nginx process.
