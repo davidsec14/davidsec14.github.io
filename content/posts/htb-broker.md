@@ -83,13 +83,7 @@ PORT      STATE SERVICE    VERSION
 Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
 ```
 
-Port 61616 is the one that matters. The nmap fingerprint confirms ActiveMQ OpenWire transport version 5.15.15, which falls right in the affected range for CVE-2023-46604.
-
-### ActiveMQ - TCP 61616 / 8161
-
-Ports 80 and 8161 both prompt for HTTP basic auth with the realm `ActiveMQRealm`. Default creds `admin:admin` get in on 8161, which shows the ActiveMQ web console. The version is confirmed: 5.15.15. There's nothing inside the console worth exploiting directly, but the version banner is all I needed.
-
-The multiple protocol ports (1883 MQTT, 5672 AMQP, 61613 STOMP, 61614 HTTP transport) are all just ActiveMQ listeners. The one that's vulnerable is 61616, the OpenWire binary protocol.
+That's all I needed. Port 61616 fingerprints as ActiveMQ OpenWire transport 5.15.15, which falls right in the affected range for CVE-2023-46604. Everything else is noise.
 
 ---
 
