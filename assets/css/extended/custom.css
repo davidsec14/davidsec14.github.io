@@ -1,0 +1,7 @@
+/* Uniform info-card height on listing and post pages */
+.entry-cover img {
+    height: 160px;
+    width: 100%;
+    object-fit: contain;
+    object-position: center;
+}
