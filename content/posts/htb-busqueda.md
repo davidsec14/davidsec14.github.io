@@ -126,15 +126,8 @@ Shell lands immediately. I upgrade to a proper PTY.
 **Target (svc):**
 ```console
 $ python3 -c 'import pty; pty.spawn("/bin/bash")'
-```
-
-**Kali:**
-```console
+# Ctrl+Z
 $ stty raw -echo; fg
-```
-
-**Target (svc):**
-```console
 $ export TERM=xterm
 ```
 
